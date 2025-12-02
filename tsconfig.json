@@ -34,6 +34,17 @@
         ".next/types/**/*.ts"
     ],
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "debug_*.ts",
+        "debug_*.js",
+        "test_*.ts",
+        "test_*.js",
+        "*.test.ts",
+        "verify_*.ts",
+        "verify_*.js",
+        "fetch_and_log.js",
+        "print_html.js",
+        "simple_test.js",
+        "payload.json"
     ]
 }
