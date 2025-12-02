@@ -58,3 +58,72 @@ export async function downloadMedia(shortcode: string, thumbnailUrl?: string) {
         };
     }
 }
+
+export async function resolveCarousel(shortcode: string) {
+    console.log('[Server Action] resolveCarousel called for:', shortcode);
+    try {
+        const apiKey = process.env.RAPIDAPI_KEY;
+        const apiHost = process.env.RAPIDAPI_HOST;
+
+        if (!apiKey || !apiHost) {
+            console.error('[Server Action] API key or host missing');
+            return { error: 'API configuration missing' };
+        }
+
+        const fetcher = new RapidAPIFetcher(apiKey, apiHost);
+
+        // Add a timeout to the fetch operation
+        const timeoutPromise = new Promise<null>((_, reject) =>
+            setTimeout(() => reject(new Error('Request timed out')), 30000)
+        );
+
+        const postPromise = fetcher.fetchPost(shortcode);
+
+        const post = await Promise.race([postPromise, timeoutPromise]);
+
+        if (!post) {
+            console.error('[Server Action] Post not found for shortcode:', shortcode);
+            return { error: 'Post not found' };
+        }
+
+        console.log('[Server Action] Post resolved:', {
+            id: post.id,
+            type: post.type,
+            mediaCount: post.media?.length
+        });
+
+        return {
+            success: true,
+            media: post.media || []
+        };
+    } catch (error: any) {
+        console.error('[Server Action] Resolve carousel error:', error);
+        return { error: error.message || 'Failed to resolve carousel' };
+    }
+}
+
+export async function resolveHighlight(highlightId: string) {
+    console.log('[Server Action] resolveHighlight called for:', highlightId);
+    try {
+        const apiKey = process.env.RAPIDAPI_KEY;
+        const apiHost = process.env.RAPIDAPI_HOST;
+
+        if (!apiKey || !apiHost) {
+            console.error('[Server Action] API key or host missing');
+            return { error: 'API configuration missing' };
+        }
+
+        const fetcher = new RapidAPIFetcher(apiKey, apiHost);
+        const stories = await fetcher.fetchHighlightStories(highlightId);
+
+        console.log('[Server Action] Highlight resolved with', stories.length, 'stories');
+
+        return {
+            success: true,
+            stories: stories
+        };
+    } catch (error: any) {
+        console.error('[Server Action] Resolve highlight error:', error);
+        return { error: error.message || 'Failed to resolve highlight' };
+    }
+}

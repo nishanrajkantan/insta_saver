@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Loader2, Instagram, AlertCircle } from "lucide-react";
 import DownloadCard from "@/components/DownloadCard";
+import Features from "@/components/Features";
 
 export default function Home() {
     const [url, setUrl] = useState("");
@@ -37,6 +38,39 @@ export default function Home() {
             setError(err.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const [loadingMore, setLoadingMore] = useState(false);
+
+    const handleLoadMore = async () => {
+        if (!data?.nextCursor || loadingMore) return;
+
+        setLoadingMore(true);
+        try {
+            const res = await fetch("/api/resolve", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url, cursor: data.nextCursor }),
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) {
+                throw new Error(result.error || "Failed to fetch more posts");
+            }
+
+            if (result.data?.posts) {
+                setData((prev: any) => ({
+                    ...prev,
+                    posts: [...prev.posts, ...result.data.posts],
+                    nextCursor: result.data.nextCursor,
+                }));
+            }
+        } catch (err: any) {
+            console.error("Load more error:", err);
+        } finally {
+            setLoadingMore(false);
         }
     };
 
@@ -102,6 +136,65 @@ export default function Home() {
                         </motion.div>
                     )}
 
+                    {/* Structured Profile Data */}
+                    {data && !Array.isArray(data) && data.posts && (
+                        <div className="space-y-12 w-full max-w-[1600px]">
+                            {/* Stories Section */}
+                            {data.stories && data.stories.length > 0 && (
+                                <div className="space-y-4">
+                                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white text-left pl-2">Stories</h2>
+                                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                                        {data.stories.map((item: any, index: number) => (
+                                            <DownloadCard key={item.id || `story-${index}`} data={item} />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Highlights Section */}
+                            {data.highlights && data.highlights.length > 0 && (
+                                <div className="space-y-4">
+                                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white text-left pl-2">Highlights</h2>
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                                        {data.highlights.map((item: any, index: number) => (
+                                            <DownloadCard key={item.id || `highlight-${index}`} data={item} />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Posts Section */}
+                            {data.posts && data.posts.length > 0 && (
+                                <div className="space-y-4">
+                                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white text-left pl-2">Posts</h2>
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                                        {data.posts.map((item: any, index: number) => (
+                                            <DownloadCard key={item.id || `post-${index}`} data={item} />
+                                        ))}
+                                    </div>
+
+                                    {/* Load More Button */}
+                                    {data.nextCursor && (
+                                        <div className="flex justify-center pt-8">
+                                            <button
+                                                onClick={handleLoadMore}
+                                                disabled={loadingMore}
+                                                className="flex items-center gap-2 rounded-xl bg-zinc-900 px-6 py-3 font-medium text-white transition-all hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                                            >
+                                                {loadingMore ? (
+                                                    <Loader2 className="animate-spin" size={20} />
+                                                ) : (
+                                                    "Load More"
+                                                )}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Single Item or Legacy Array Data */}
                     {data && Array.isArray(data) && (
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             {data.map((item: any, index: number) => (
@@ -110,13 +203,16 @@ export default function Home() {
                         </div>
                     )}
 
-                    {data && !Array.isArray(data) && (
+                    {/* Single Object (Post/Story) */}
+                    {data && !Array.isArray(data) && !data.posts && (
                         <div className="flex justify-center">
                             <DownloadCard data={data} />
                         </div>
                     )}
                 </AnimatePresence>
             </div>
+
+            <Features />
         </main>
     );
 }

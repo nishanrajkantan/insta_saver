@@ -8,6 +8,11 @@ export interface InstagramPost {
     title: string;
     description: string;
     shortcode?: string;
+    media?: {
+        type: 'image' | 'video';
+        url: string;
+        thumbnail?: string;
+    }[];
 }
 
 export interface InstagramStory {
@@ -24,6 +29,7 @@ export interface InstagramProfile {
     profilePic: string;
     userId: string;
     posts: InstagramPost[];
+    nextCursor?: string;
 }
 
 export interface FetcherResponse {

@@ -27,6 +27,22 @@ function extractUsername(url: string): string | null {
         const urlObj = new URL(url);
         const parts = urlObj.pathname.split("/").filter((p) => p);
         if (parts.length === 1) return parts[0];
+        // Handle stories: /stories/username/123...
+        if (parts[0] === 'stories' && parts.length >= 2) return parts[1];
+        return null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function extractStoryId(url: string): string | null {
+    try {
+        const urlObj = new URL(url);
+        const parts = urlObj.pathname.split("/").filter((p) => p);
+        // /stories/username/1234567890/
+        if (parts[0] === 'stories' && parts.length >= 3) {
+            return parts[2];
+        }
         return null;
     } catch (e) {
         return null;
@@ -36,7 +52,7 @@ function extractUsername(url: string): string | null {
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        let { url } = body;
+        let { url, cursor } = body;
 
         if (!url) {
             return NextResponse.json(
@@ -64,7 +80,22 @@ export async function POST(request: NextRequest) {
         const fetcher = new RapidAPIFetcher(apiKey, apiHost);
 
         // Determine URL type
-        if (isProfileUrl(url)) {
+        const storyId = extractStoryId(url);
+        if (storyId) {
+            // Story URL
+            const story = await fetcher.fetchStory(storyId);
+            if (!story) {
+                return NextResponse.json(
+                    { error: "Could not fetch story. It might be expired or private." },
+                    { status: 422 }
+                );
+            }
+            return NextResponse.json({
+                success: true,
+                type: 'story',
+                data: [story],
+            });
+        } else if (isProfileUrl(url)) {
             // Profile URL
             const username = extractUsername(url);
             if (!username) {
@@ -74,19 +105,49 @@ export async function POST(request: NextRequest) {
                 );
             }
 
-            const profile = await fetcher.fetchUserProfile(username);
+            // If cursor is present, just fetch next page of posts
+            if (cursor) {
+                const { posts, nextCursor } = await fetcher.fetchUserPosts(username, cursor);
+                return NextResponse.json({
+                    success: true,
+                    type: 'profile_posts',
+                    data: {
+                        posts,
+                        nextCursor
+                    }
+                });
+            }
 
-            if (!profile || profile.posts.length === 0) {
+            // 1. Fetch Profile Info first to get basic info
+            const userInfo = await fetcher.fetchUserInfo(username);
+
+            if (!userInfo) {
                 return NextResponse.json(
                     { error: "Could not fetch profile. The account might be private or the API limit may have been reached." },
                     { status: 422 }
                 );
             }
 
+            // 2. Fetch Posts, Stories (disabled/empty), and Highlights in parallel
+            const [postsResult, storiesResult, highlightsResult] = await Promise.allSettled([
+                fetcher.fetchUserPosts(username),
+                fetcher.fetchUserStories(userInfo.userId),
+                fetcher.fetchUserHighlights(username)
+            ]);
+
+            const postsData = postsResult.status === 'fulfilled' ? postsResult.value : { posts: [], nextCursor: undefined };
+            const stories = storiesResult.status === 'fulfilled' ? storiesResult.value : [];
+            const highlights = highlightsResult.status === 'fulfilled' ? highlightsResult.value : [];
+
             return NextResponse.json({
                 success: true,
                 type: 'profile',
-                data: profile.posts,
+                data: {
+                    stories,
+                    highlights,
+                    posts: postsData.posts,
+                    nextCursor: postsData.nextCursor
+                },
             });
         } else {
             // Post/Reel URL

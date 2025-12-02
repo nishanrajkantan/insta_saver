@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
         return new NextResponse(buffer, {
             headers: {
                 'Content-Type': response.headers.get('Content-Type') || 'image/jpeg',
-                'Content-Disposition': `attachment; filename="instagram-${Date.now()}.jpg"`,
+                'Content-Disposition': `inline; filename="instagram-${Date.now()}.jpg"`,
             },
         });
     } catch (error: any) {
