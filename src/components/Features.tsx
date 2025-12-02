@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Image, Video, History, Zap, Shield, Smartphone } from "lucide-react";
+import { Image, Video, History, Zap, Shield, Sparkles } from "lucide-react";
 
 const features = [
     {
@@ -19,8 +19,16 @@ const features = [
     {
         icon: <History className="h-6 w-6" />,
         title: "Stories",
-        description: "View and download stories anonymously (Coming Soon).",
+        description: "View and download stories anonymously.",
         color: "from-yellow-400 to-orange-500",
+        comingSoon: true,
+    },
+    {
+        icon: <Sparkles className="h-6 w-6" />,
+        title: "Highlights",
+        description: "Download individual stories from user highlights.",
+        color: "from-cyan-400 to-blue-500",
+        comingSoon: true,
     },
     {
         icon: <Zap className="h-6 w-6" />,
@@ -33,12 +41,6 @@ const features = [
         title: "Secure",
         description: "We don't store your data. Your privacy is our priority.",
         color: "from-blue-400 to-cyan-500",
-    },
-    {
-        icon: <Smartphone className="h-6 w-6" />,
-        title: "Responsive",
-        description: "Works perfectly on mobile, tablet, and desktop devices.",
-        color: "from-red-400 to-pink-500",
     },
 ];
 
@@ -71,6 +73,13 @@ export default function Features() {
                             transition={{ delay: index * 0.1, duration: 0.5 }}
                             className="group relative overflow-hidden rounded-3xl border border-zinc-200 bg-white/50 p-8 backdrop-blur-sm transition-all hover:border-zinc-300 hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900/50 dark:hover:border-zinc-700"
                         >
+                            {feature.comingSoon && (
+                                <div className="absolute top-4 right-4">
+                                    <span className="rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 px-3 py-1 text-xs font-semibold text-white shadow-lg">
+                                        Coming Soon
+                                    </span>
+                                </div>
+                            )}
                             <div className={`mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${feature.color} text-white shadow-lg`}>
                                 {feature.icon}
                             </div>
