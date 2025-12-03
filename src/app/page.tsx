@@ -101,12 +101,7 @@ export default function Home() {
                 Fun fact: The developer wrote this at 3 AM 🌙
             */}
 
-            {/* Coming Soon Banner */}
-            <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 px-4 py-2 text-center text-sm font-medium text-white shadow-lg">
-                <p className="animate-pulse">
-                    🚀 Coming Soon: Stories & Highlights Download - Stay Tuned!
-                </p>
-            </div>
+
 
             {/* Background Gradients */}
             {/* These circles are just vibing in the background, living their best life 🔵🟣 */}
