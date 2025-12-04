@@ -9,8 +9,54 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "InstaFetch - Download Instagram Content",
-    description: "Download Instagram Posts, Reels, and Carousels easily.",
+    metadataBase: new URL('https://instafetch.net'),
+    title: {
+        default: "InstaFetch - Instagram Downloader | Save Reels, Stories & Photos",
+        template: "%s | InstaFetch"
+    },
+    description: "Download Instagram Reels, Videos, Photos, Stories, and Carousels in high quality. Free, fast, and anonymous Instagram downloader. No login required.",
+    keywords: [
+        "instagram downloader",
+        "instagram saver",
+        "download instagram reels",
+        "save instagram stories",
+        "instagram photo downloader",
+        "instagram carousel downloader",
+        "ig saver",
+        "instafetch",
+        "instagram video download"
+    ],
+    authors: [{ name: "InstaFetch" }],
+    creator: "InstaFetch",
+    publisher: "InstaFetch",
+    openGraph: {
+        title: "InstaFetch - Best Instagram Downloader",
+        description: "Download Instagram Reels, Stories, Photos & Carousels instantly. Free, fast, and secure.",
+        url: 'https://instafetch.net',
+        siteName: 'InstaFetch',
+        locale: 'en_US',
+        type: 'website',
+    },
+    twitter: {
+        card: 'summary_large_image',
+        title: "InstaFetch - Download Instagram Content",
+        description: "Save Instagram Reels, Stories & Photos in seconds.",
+        creator: "@instafetch",
+    },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            'max-video-preview': -1,
+            'max-image-preview': 'large',
+            'max-snippet': -1,
+        },
+    },
+    alternates: {
+        canonical: 'https://instafetch.net',
+    },
 };
 
 export default function RootLayout({

@@ -120,10 +120,10 @@ export default function Home() {
                         <Instagram size={32} />
                     </div>
                     <h1 className="mb-2 text-4xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-5xl">
-                        InstaFetch
+                        InstaFetch - Instagram Downloader
                     </h1>
                     <p className="mb-8 text-lg text-zinc-600 dark:text-zinc-400">
-                        Download Instagram Posts, Reels & Carousels instantly.
+                        Save Instagram Reels, Stories, Photos & Carousels instantly.
                     </p>
                 </motion.div>
 
