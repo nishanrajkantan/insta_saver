@@ -173,7 +173,7 @@ export default function DownloadCard({ data }: DownloadCardProps) {
                             <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                         ) : null}
                         <span className="leading-none">
-                            {isResolving ? "Resolving..." : isDownloading ? "Downloading..." : "Download"}
+                            {isResolving || isDownloading ? "Downloading..." : "Download"}
                         </span>
                     </button>
                 </div>
